@@ -1,36 +1,28 @@
 import pytest
-import playwright
-import json
+from playwright.sync_api import Page
 
-from playwright.sync_api import Playwright
+ALLOWED_BROWSERS = {"chromium", "firefox"}
 
-with open('data/supported_browsers.json') as f:
-    supported_browser_list = tuple(json.load(f))
+def pytest_configure(config: pytest.Config) -> None:
+    selected_browsers = config.getoption("browser") or ALLOWED_BROWSERS
+    unsupported_browsers = set(selected_browsers) - ALLOWED_BROWSERS
+    if unsupported_browsers:
+        unsupported = ", ".join(sorted(unsupported_browsers))
+        allowed = ", ".join(sorted(ALLOWED_BROWSERS))
+        raise pytest.UsageError(
+            f"Unsupported browser: {unsupported}. Allowed browsers: {allowed}"
+        )
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--browser_name",
-        action="store", 
-        default="chromium", 
-        choices=supported_browser_list,
-        help=f"choose from {supported_browser_list}"
+    config.addinivalue_line(
+        "markers", "url(url): navigate the browser_page fixture to this URL"
     )
 
-@pytest.fixture(scope="function")
-def browser_page(playwright: Playwright, request):
-    browser_name = request.config.getoption("browser_name")
+
+@pytest.fixture
+def browser_page(page: Page, request: pytest.FixtureRequest) -> Page:
     marker = request.node.get_closest_marker("url")
-    if marker == None:
-        raise Exception(f"mark for url not present")
+    if marker is None or len(marker.args) != 1 or not isinstance(marker.args[0], str):
+        pytest.fail("browser_page requires exactly one URL in a @pytest.mark.url marker")
 
-    url = marker.args[0]
-
-    browser = playwright[browser_name].launch()
-    context = browser.new_context()
-    page = context.new_page()
-    try:
-        page.goto(url)
-        yield page
-    finally:
-        context.close()
-        browser.close()
+    page.goto(marker.args[0])
+    return page
