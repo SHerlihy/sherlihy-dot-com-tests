@@ -1,0 +1,61 @@
+from typing import TypedDict
+
+import re
+import pytest
+from playwright.sync_api import Page, Locator, expect
+from pytest_bdd import scenario, given, when, then, parsers
+
+from pageAction.home import Home
+
+class Shared(TypedDict):
+    page: Page|None
+    actions: Home|None
+    query_item: Locator|None
+
+@pytest.fixture(scope='module')
+def shared()->Shared:
+    return {
+            "page": None,
+            "actions": None,
+            "query_item": None
+    }
+
+@pytest.mark.url("https://sherlihy.com")
+@scenario('features/chatAI.feature', 'I want to query the AI') 
+def test_chat_query() -> None:
+    pass
+
+@given('this is the first time I am using the website')
+def access_homepage(shared: Shared, browser_page: Page):
+    shared["page"] = browser_page
+    shared["actions"] = Home(browser_page)
+
+@when(parsers.parse('I input my {query} into the input box'))
+def input_query(shared: Shared, query: str):
+    assert shared["actions"] is not None
+    shared["actions"].type_in_chat(query)
+
+@when('I click the submit button')
+def click_submit(shared: Shared):
+    assert shared["actions"] is not None
+    shared["actions"].click_submit_button()
+
+@then(parsers.parse('My {query} is shown in the chat section'))
+def assert_query_in_chat(shared: Shared, query: str):
+    assert shared["page"] is not None
+    chat_items = shared["page"].get_by_role('listitem')
+    query_item = chat_items.filter(has_text=query)
+
+    shared["query_item"] = query_item
+
+    expect(query_item).to_contain_text(query)
+
+@then('The answer is shown below my query')
+def assert_answer_to_query(shared: Shared):
+    assert shared["query_item"] is not None
+    items_after_query = shared["query_item"].locator(
+      "xpath=following-sibling::*"
+    )
+
+    answer_element = items_after_query.get_by_text(re.compile(r"\S+"))
+    expect(answer_element).to_be_visible()
