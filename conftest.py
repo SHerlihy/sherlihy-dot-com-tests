@@ -1,11 +1,16 @@
 import pytest
 from playwright.sync_api import Page
 
-ALLOWED_BROWSERS = {"chromium", "firefox"}
+ALLOWED_BROWSERS = ["chromium", "firefox"]
+
 
 def pytest_configure(config: pytest.Config) -> None:
-    selected_browsers = config.getoption("browser") or ALLOWED_BROWSERS
-    unsupported_browsers = set(selected_browsers) - ALLOWED_BROWSERS
+    selected_browsers = config.getoption("browser")
+    if not selected_browsers:
+        selected_browsers = ALLOWED_BROWSERS
+        config.option.browser = ALLOWED_BROWSERS
+
+    unsupported_browsers = set(selected_browsers) - set(ALLOWED_BROWSERS)
     if unsupported_browsers:
         unsupported = ", ".join(sorted(unsupported_browsers))
         allowed = ", ".join(sorted(ALLOWED_BROWSERS))
