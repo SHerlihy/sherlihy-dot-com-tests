@@ -17,3 +17,10 @@ class Navigation:
     def click_button_with_text(self, text: str):
         all_buttons = self.page.get_by_role('button')
         all_buttons.get_by_text(text).click()
+
+    def click_info_copy_button(self, key_information:str):
+        key_information_element = self.page.get_by_text(key_information).first
+
+        key_information_element.locator(
+            "xpath=following::*[self::button][1]"
+        ).click()
