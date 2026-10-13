@@ -1,8 +1,15 @@
+import settings
 import pytest
 from playwright.sync_api import Page
 
 ALLOWED_BROWSERS = ["chromium", "firefox"]
 
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args):
+    return {
+        **browser_context_args,
+        "base_url": settings.BASE_URL,
+    }
 
 def pytest_configure(config: pytest.Config) -> None:
     selected_browsers = config.getoption("browser")
@@ -19,15 +26,15 @@ def pytest_configure(config: pytest.Config) -> None:
         )
 
     config.addinivalue_line(
-        "markers", "url(url): navigate the browser_page fixture to this URL"
+        "markers", "path(path): navigate the browser_page fixture to this path"
     )
 
 
 @pytest.fixture
 def browser_page(page: Page, request: pytest.FixtureRequest) -> Page:
-    marker = request.node.get_closest_marker("url")
+    marker = request.node.get_closest_marker("path")
     if marker is None or len(marker.args) != 1 or not isinstance(marker.args[0], str):
-        pytest.fail("browser_page requires exactly one URL in a @pytest.mark.url marker")
+        pytest.fail("browser_page requires exactly one path in a @pytest.mark.path marker")
 
     page.goto(marker.args[0])
     return page

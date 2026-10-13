@@ -12,7 +12,7 @@ class Shared(TypedDict):
     actions: Home|None
     query_item: Locator|None
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='function')
 def shared()->Shared:
     return {
             "page": None,
@@ -20,7 +20,8 @@ def shared()->Shared:
             "query_item": None
     }
 
-@pytest.mark.url("https://sherlihy.com")
+@pytest.mark.usefixtures("browser_page")
+@pytest.mark.path("")
 @scenario('features/chatAI.feature', 'I want to query the AI') 
 def test_chat_query() -> None:
     pass
