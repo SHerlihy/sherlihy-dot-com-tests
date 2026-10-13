@@ -1,4 +1,3 @@
-# import ayncio
 from playwright.sync_api import Page, expect
 
 def getNonTextElements(page:Page):
