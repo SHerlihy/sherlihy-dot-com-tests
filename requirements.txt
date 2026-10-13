@@ -4,3 +4,4 @@ pytest-playwright==0.10.0
 pytest-bdd==9.0.0
 ruff==0.17.0
 mypy==2.4.0
+python-dotenv==1.2.4

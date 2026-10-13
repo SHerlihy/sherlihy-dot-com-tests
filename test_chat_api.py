@@ -1,15 +1,17 @@
-import pytest
+import os
 import json
+
+import pytest
 from playwright.sync_api import Playwright, expect, Page
 
-from pageAction.home import Home
+from page_action.home import Home
 
-QUERY_URL = "https://om9v93ll69.execute-api.eu-west-2.amazonaws.com/prod/query"
-TEST_API_KEY = "Zl5b1apCdZ9uGXszn1uaA2GUIwj6TDKW6CyowYZL"
+CHAT_URL = os.environ["CHAT_URL"] 
+CHAT_API_KEY = os.environ["CHAT_API_KEY"]
 
 def test_ChatNoAPIKey(playwright: Playwright):
     req_context = playwright.request.new_context(
-        base_url=QUERY_URL
+        base_url=CHAT_URL
     )
     response = req_context.post(
             "/",
@@ -21,8 +23,8 @@ def test_ChatNoAPIKey(playwright: Playwright):
 
 def test_ChatWithApiKey(playwright: Playwright):
     req_context = playwright.request.new_context(
-        base_url=QUERY_URL,
-        extra_http_headers={"x-api-key": TEST_API_KEY}
+        base_url=CHAT_URL,
+        extra_http_headers={"x-api-key": CHAT_API_KEY}
     )
     response = req_context.post(
         "/",
