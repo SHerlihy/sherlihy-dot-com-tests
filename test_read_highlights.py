@@ -1,7 +1,7 @@
 from typing import TypedDict
 
 import pytest
-from playwright.sync_api import Locator, Page, BrowserContext,  expect
+from playwright.sync_api import Page, expect
 from pytest_bdd import given, parsers, scenario, then, when
 
 from page_action.navigation import Navigation
@@ -23,7 +23,7 @@ def shared() -> Shared:
 @pytest.mark.usefixtures("browser_page")
 @pytest.mark.path("")
 @scenario('features/readHighlights.feature', 'I want to read about a highlight.')
-def test_external_links() -> None:
+def test_read_highlight() -> None:
     pass
 
 
@@ -33,16 +33,16 @@ def access_homepage(shared: Shared, browser_page: Page):
     shared["actions"] = Navigation(browser_page)
 
 
-@when('Click the navigate button')
+@when('Open the navigation menu')
 def click_navigate_button(shared: Shared):
     assert shared["actions"] is not None
     shared["actions"].click_navigate_button()
 
 
-@when(parsers.parse('Click the {highlight_name} button'))
+@when(parsers.parse('Click the {highlight_name} link'))
 def click_highlight_button(shared: Shared, highlight_name: str):
     assert shared["actions"] is not None
-    shared["actions"].click_button_with_text(highlight_name)
+    shared["actions"].click_link_with_text(highlight_name)
 
 
 @then('An image is present')
