@@ -20,3 +20,8 @@ class Home:
     def click_retry_button(self):
         button_element = self.page.get_by_text("retry?")
         button_element.click()
+
+    def click_link(self, link_text:str):
+        a_elements = self.page.get_by_role("link")
+        link_element = a_elements.get_by_text(link_text).first
+        link_element.click()
