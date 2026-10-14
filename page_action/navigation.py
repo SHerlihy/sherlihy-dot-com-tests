@@ -1,3 +1,4 @@
+import re
 from playwright.sync_api import Page
 
 class Navigation:
@@ -5,13 +6,8 @@ class Navigation:
         self.page = page
 
     def click_navigate_button(self):
-        to_open = self.page.get_by_role("button", name="Open navigation button.")
-        if to_open.count() > 0:
-            to_open.click()
-            return
-
-        to_close = self.page.get_by_role("button", name="Close navigation button.")
-        to_close.click()
+        nav_button = self.page.get_by_role("button", name=re.compile("navigation button"))
+        nav_button.click()
 
     def click_link_with_text(self, text: str):
         all_links = self.page.get_by_role('link')
