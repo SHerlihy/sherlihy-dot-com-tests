@@ -58,12 +58,9 @@ def assert_image_present(shared: Shared, key_information:str, confirm_color:str)
         "xpath=following::*[self::button or @role='button'][1]"
     )
 
-    svg_elements = copy_button.locator("svg").all()
+    confirm_element = copy_button.locator(f".{confirm_color}")
 
-    green_match = re.compile(rf"{confirm_color}")
-
-    for svg in svg_elements:
-        expect(svg).to_have_class(green_match)
+    expect(confirm_element).to_be_visible()
 
 
 @then(parsers.parse('{key_information} is added to clipboard'))
